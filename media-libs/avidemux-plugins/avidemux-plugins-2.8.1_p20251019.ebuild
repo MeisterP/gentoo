@@ -10,16 +10,17 @@ inherit cmake flag-o-matic python-single-r1
 
 MY_COMMIT="376c1469eebedcc724dbbcc0d45030f32c9d13f5"
 
-DESCRIPTION="Plugins for the video editor media-video/avidemux"
+DESCRIPTION="Plugins for Avidemux video editor"
 HOMEPAGE="http://fixounet.free.fr/avidemux"
 SRC_URI="https://github.com/mean00/avidemux2/archive/${MY_COMMIT}.tar.gz -> avidemux-${PV}.tar.gz"
+S="${WORKDIR}/avidemux2-${MY_COMMIT}"
 
 # Multiple licenses because of all the bundled stuff.
 # See License.txt.
 LICENSE="GPL-2 MIT PSF-2 LGPL-2 OFL-1.1"
 SLOT="2.7"
-IUSE="a52 aac aften alsa amr dcaenc debug dts fdk fontconfig fribidi jack lame libsamplerate cpu_flags_x86_mmx nvenc opengl opus oss pulseaudio gui truetype twolame vdpau vorbis vpx x264 x265 xv xvid"
 KEYWORDS="~amd64 ~x86"
+IUSE="a52 aac aften alsa amr dcaenc debug dts fdk fontconfig fribidi jack lame libsamplerate cpu_flags_x86_mmx nvenc opengl opus oss pulseaudio gui truetype twolame vdpau vorbis vpx x264 x265 xv xvid"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
@@ -78,8 +79,6 @@ RDEPEND="
 	${COMMON_DEPEND}
 	!<media-libs/avidemux-plugins-${PV}
 "
-
-S=${WORKDIR}/avidemux2-${MY_COMMIT}
 
 PATCHES=( "${FILESDIR}/${PN}-2.8.1_p20251019-optional-pulse.patch"
 	"${FILESDIR}/${PN}-2.8.1_p20251019-include.patch" )
