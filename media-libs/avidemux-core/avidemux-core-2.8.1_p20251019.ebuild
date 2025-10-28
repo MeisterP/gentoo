@@ -11,6 +11,8 @@ MY_COMMIT="376c1469eebedcc724dbbcc0d45030f32c9d13f5"
 DESCRIPTION="Core libraries for simple video cutting, filtering and encoding tasks"
 HOMEPAGE="http://fixounet.free.fr/avidemux"
 SRC_URI="https://github.com/mean00/avidemux2/archive/${MY_COMMIT}.tar.gz -> avidemux-${PV}.tar.gz"
+S="${WORKDIR}/avidemux2-${MY_COMMIT}"
+CMAKE_USE_DIR="${S}/${PN/-/_}"
 
 # Multiple licenses because of all the bundled stuff.
 # See License.txt.
@@ -46,9 +48,6 @@ PATCHES=(
 	"${FILESDIR}"/avidemux-core-2.8.1_p20251019-ffmpeg-flags.patch
 )
 
-S=${WORKDIR}/avidemux2-${MY_COMMIT}
-CMAKE_USE_DIR="${S}/${PN/-/_}"
-
 src_prepare() {
 	cmake_src_prepare
 
@@ -77,8 +76,6 @@ src_prepare() {
 src_configure() {
 	# See bug 432322.
 	use x86 && replace-flags -O0 -O1
-	# Bug 768210
-	append-cxxflags -std=gnu++14
 
 	local mycmakeargs=(
 		-DGETTEXT="$(usex nls)"
@@ -92,12 +89,4 @@ src_configure() {
 	use debug && mycmakeargs+=( -DVERBOSE=1 -DADM_DEBUG=1 )
 
 	cmake_src_configure
-}
-
-src_compile() {
-	cmake_src_compile
-}
-
-src_install() {
-	cmake_src_install
 }
