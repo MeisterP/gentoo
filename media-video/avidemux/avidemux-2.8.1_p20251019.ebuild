@@ -15,6 +15,7 @@ SRC_URI="
 	https://github.com/mean00/avidemux2/archive/${MY_COMMIT}.tar.gz -> avidemux-${PV}.tar.gz
 	https://github.com/mean00/avidemux2_i18n/archive/${MY_COMMIT_LANG}.tar.gz -> ${PN}-i18n-${PV}.tar.gz
 "
+S="${WORKDIR}/avidemux2-${MY_COMMIT}"
 
 # Multiple licenses because of all the bundled stuff.
 # See License.txt.
@@ -25,12 +26,12 @@ IUSE="debug nls nvenc opengl gui sdl vaapi vdpau xv"
 
 BDEPEND="
 	dev-lang/yasm
-	gui? ( dev-qt/qttools:6 )
+	gui? ( dev-qt/qttools:6[linguist] )
 "
 DEPEND="
 	~media-libs/avidemux-core-${PV}:${SLOT}[nls?,sdl?,vaapi?,vdpau?,xv?]
-	opengl? ( virtual/opengl )
 	gui? ( dev-qt/qtbase:6[gui,network,opengl,widgets] )
+	opengl? ( virtual/opengl )
 	vaapi? ( media-libs/libva:= )
 "
 RDEPEND="
@@ -38,10 +39,9 @@ RDEPEND="
 	nls? ( virtual/libintl )
 	!<media-video/avidemux-${PV}
 "
-
 PDEPEND="~media-libs/avidemux-plugins-${PV}:${SLOT}[opengl?,gui?]"
 
-S=${WORKDIR}/avidemux2-${MY_COMMIT}
+PATCHES=( "${FILESDIR}/avidemux-2.8.1_p20251019-cmake.patch" )
 
 src_unpack() {
 	default
@@ -49,15 +49,13 @@ src_unpack() {
 }
 
 src_prepare() {
-	# prevent cmake.eclass warnings
-	sed -i -e "s/cmake_minimum_required(VERSION 3.7)/cmake_minimum_required(VERSION 3.20)/" \
-		avidemux/qt4/xdg_data/CMakeLists.txt || die
+	default
 
 	processes="buildCli:avidemux/cli"
 	use gui && processes+=" buildQt4:avidemux/qt4"
 
 	for process in ${processes} ; do
-		CMAKE_USE_DIR="${S}"/${process#*:} cmake_src_prepare
+		CMAKE_USE_DIR="${S}"/${process#*:} cmake_prepare
 	done
 
 	# Remove "Build Option" dialog because it doesn't reflect
@@ -75,10 +73,6 @@ src_configure() {
 
 	# See bug 432322.
 	use x86 && replace-flags -O0 -O1
-
-	# The build relies on an avidemux-core header that uses 'nullptr'
-	# which is from >=C++11. Let's use the GCC-6 default C++ dialect.
-	append-cxxflags -std=c++14
 
 	local mycmakeargs=(
 		-DGETTEXT="$(usex nls)"
